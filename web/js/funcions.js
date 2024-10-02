@@ -1,8 +1,10 @@
+fetch("/tr0-2024-2025-un-munt-de-preguntes-MontanoGabriel/back/Back.php")
+.then(Response => Response.json())
+.then(data => console.log(data))
+
 let currentQuestionIndex = 0; // Índice para la pregunta actual
 let correctAnswersCount = 0;  // Contador para las respuestas correctas
 
-
-  
 
   function shuffle(array) {
     let currentIndex = array.length;
@@ -126,7 +128,7 @@ function handleAnswerClick(selectedAnswer) {
   
 // Iniciar con el menú de inicio
 // MenuInicio();
-getjson();
+
 
 var inicio; // Variable global que guarda el momento en que el cronómetro empieza
   var timeout; // Guardará el ID del timeout
