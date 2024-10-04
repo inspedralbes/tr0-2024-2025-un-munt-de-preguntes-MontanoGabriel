@@ -1,135 +1,120 @@
-fetch("/tr0-2024-2025-un-munt-de-preguntes-MontanoGabriel/back/Back.php")
-.then(Response => Response.json())
-.then(data => console.log(data))
-
+let preguntas;
 let currentQuestionIndex = 0; // Índice para la pregunta actual
 let correctAnswersCount = 0;  // Contador para las respuestas correctas
+let inicio; // Variable global que guarda el momento en que el cronómetro empieza
+let timeout; // Guardará el ID del timeout
 
+// Fetch para obtener las preguntas desde la base de datos a través de PHP
+fetch("/tr0-2024-2025-un-munt-de-preguntes-MontanoGabriel/back/Back.php")
+  .then(response => response.json())
+  .then(data => {
+      preguntas = data;
+      // Inicia el menú después de cargar las preguntas
+      MenuInicio();
+  });
 
-  function shuffle(array) {
+// Función para mezclar las respuestas
+function shuffle(array) {
     let currentIndex = array.length;
   
-    // While there remain elements to shuffle...
     while (currentIndex != 0) {
-  
-      // Pick a remaining element...
-      let randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-  
-      // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex], array[currentIndex]];
+        let randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
     }
-  }
-
-
-
+}
 
 // Función para mostrar el menú de inicio
 function MenuInicio() {
     document.getElementById('content').innerHTML = `
         <div class="titulo">
             <h1>FilmQuiz</h1>
-            <button id="Jugar">Iniciar</button>
+            <br>
+            <button id="Jugar" class="answer">Iniciar</button>
         </div>
     `;
-    document.getElementById('Jugar').addEventListener('click', renderContent);
-    
+    document.getElementById('Jugar').addEventListener('click', preguntas);
 }
 
-// Función para renderizar el contenido (preguntas)
-function renderContent() {
-  
-    // Si ya hemos pasado por todas las preguntas, mostramos el resultado final
-    if (currentQuestionIndex >= data.preguntes.length) {
+// Función para mostrar las preguntas del cuestionario
+function preguntas() {
+    if (currentQuestionIndex < preguntas.length) {
+        // Obtener la pregunta actual
+        let preguntaActual = preguntas[currentQuestionIndex];
+        let respuestas = [
+            preguntaActual.resposta_correcta,
+            ...preguntaActual.respostes_incorrectes
+        ];
+
+        // Mezclar las respuestas
+        shuffle(respuestas);
+
+        // Mostrar la pregunta y la imagen
         document.getElementById('content').innerHTML = `
-            <div class="final">
-                <h1>¡Has completado el cuestionario!</h1>
-                <img src="https://media.tenor.com/7PpiVBTIBXQAAAAM/spiderman-tobey-maguire.gif"> 
-                <p>Respuestas correctas: ${correctAnswersCount} / ${data.preguntes.length}</p>
+            <div class="pregunta">
+                <h2>${preguntaActual.pregunta}</h2>
+                <img src="${preguntaActual.imatge}"  width="200" height="350px">
             </div>
+            <div id="respuestas" class="respuestas-grid"></div>
         `;
-        return; // Detenemos la ejecución
+
+        // Añadir las respuestas como botones
+        let respuestasDiv = document.getElementById('respuestas');
+        respuestas.forEach(respuesta => {
+            let boton = document.createElement('button');
+            boton.textContent = respuesta;
+            boton.classList.add('answer');  // Asignar la clase "answer" a cada botón
+            boton.addEventListener('click', function() {
+                verificarRespuesta(respuesta === preguntaActual.resposta_correcta);
+            });
+            respuestasDiv.appendChild(boton);
+        });
+    } else {
+        mostrarResultadoFinal();  // Si no hay más preguntas, mostrar resultado final
     }
-
-    // Obtener la pregunta actual
-    let preguntaActual = data.preguntes[currentQuestionIndex];
-    
-
-    // Construir el HTML para la pregunta y las respuestas
-    let htmlString = `
-        <div class="pregunta">
-            ${preguntaActual.pregunta}
-        </div>
-        <div class="image">
-            <img src="${preguntaActual.imatge}" alt="Imagen" width="300">
-        </div>
-        <div class="answers">
-    `;
-    // Crear los botones de respuesta
-    let respuestas = [preguntaActual.resposta_correcta, ...preguntaActual.respostes_incorrectes];
-    shuffle(respuestas)
-    for (let j = 0; j < respuestas.length; j++) {
-        // En el evento onclick pasamos la respuesta seleccionada para evaluar si es correcta o no
-        htmlString += `<button class="answer" onclick="handleAnswerClick('${respuestas[j]}')">${respuestas[j]}</button>`;
-    }
-
-    htmlString += `</div>`;
-
-    // Mostrar la pregunta y respuestas en el contenedor
-    document.getElementById('content').innerHTML = htmlString;
 }
 
-// Función que maneja el clic en las respuestas
-function handleAnswerClick(selectedAnswer) {
-    // Obtener la respuesta correcta de la pregunta actual
-    let correctAnswer = data.preguntes[currentQuestionIndex].resposta_correcta;
 
-    // Verificar si la respuesta seleccionada es correcta
-    if (selectedAnswer === correctAnswer) {
-        correctAnswersCount++; // Aumentar el contador de respuestas correctas
+// Función para verificar si la respuesta es correcta
+function verificarRespuesta(esCorrecta) {
+    if (esCorrecta) {
+        correctAnswersCount++;
     }
-
-    // Pasar a la siguiente pregunta
     currentQuestionIndex++;
-    // Renderizar la siguiente pregunta
-    renderContent();
+    preguntas(); // Mostrar la siguiente pregunta
 }
 
-  // Función para añadir un cero delante si el número es menor de 10 (para horas, minutos, segundos)
-  function LeadingZero(Time) {
-      return (Time < 10) ? "0" + Time : Time;
-  }
-  
-  // Función del cronómetro
-  function Cronometro() {
-      // Obtenemos la fecha actual
-      var actual = new Date().getTime();
-  
-      // Calculamos la diferencia entre la fecha actual y la de inicio
-      var diff = new Date(actual - inicio);
-  
-      // Formateamos el resultado en horas:minutos:segundos
-      var result = LeadingZero(diff.getUTCHours()) + ":" + LeadingZero(diff.getUTCMinutes()) + ":" + LeadingZero(diff.getUTCSeconds());
-  
-      // Mostramos el tiempo transcurrido en el elemento con id 'crono'
-      document.getElementById('crono').innerHTML = result;
-  
-      // Indicamos que la función se ejecute nuevamente en 1 segundo
-      timeout = setTimeout(Cronometro, 1000);
-  }
-  
-  // Iniciar el cronómetro cuando la página se cargue
-  document.addEventListener('DOMContentLoaded', function() {
-      inicio = new Date().getTime(); // Almacenar el tiempo de inicio
-      Cronometro(); // Iniciar la función del cronómetro
-  });
+// Función para mostrar el resultado final
+function mostrarResultadoFinal() {
+    document.getElementById('content').innerHTML = `
+        <div class="final">
+            <h1>¡Has completado el cuestionario!</h1>
 
-  
-// Iniciar con el menú de inicio
-// MenuInicio();
+            <p>Has acertado ${correctAnswersCount} de ${preguntas.length} preguntas.</p>
+            <img src="https://media.tenor.com/7PpiVBTIBXQAAAAM/spiderman-tobey-maguire.gif">
+        </div>
 
+        
+    `;
+}
 
-var inicio; // Variable global que guarda el momento en que el cronómetro empieza
-  var timeout; // Guardará el ID del timeout
-  
+// Función del cronómetro (opcional, no relacionada directamente con las preguntas)
+function Cronometro() {
+    var actual = new Date().getTime();
+    var diff = new Date(actual - inicio);
+    var result = LeadingZero(diff.getUTCHours()) + ":" + LeadingZero(diff.getUTCMinutes()) + ":" + LeadingZero(diff.getUTCSeconds());
+    document.getElementById('crono').innerHTML = result;
+    timeout = setTimeout(Cronometro, 1000);
+}
+
+// Función para añadir un cero delante si el número es menor de 10 (para horas, minutos, segundos)
+function LeadingZero(Time) {
+    return (Time < 10) ? "0" + Time : Time;
+}
+
+// Iniciar el cronómetro cuando la página se cargue
+document.addEventListener('DOMContentLoaded', function() {
+    inicio = new Date().getTime();
+    Cronometro();
+});
