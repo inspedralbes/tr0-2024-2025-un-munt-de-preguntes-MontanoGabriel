@@ -21,7 +21,7 @@ function getPreguntes() {
     $result = mysqli_query($enlace, $query);
 
     // Conexión a la base de datos
-    $enlace = mysqli_connect("localhost", "gabriel", "gabriadmin", "FilmQuiz");
+    $enlace = mysqli_connect("localhost", "a23josmoncas_a", "P@ssw0rd", "a23josmoncas_a");
 
     // Verificar si la conexión es exitosa
     if (!$enlace) {
