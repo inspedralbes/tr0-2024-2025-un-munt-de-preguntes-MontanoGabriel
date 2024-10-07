@@ -1,6 +1,4 @@
-
 <?php
-
 
 function getPreguntes() {
     // Conexión a la base de datos
@@ -55,8 +53,5 @@ function getPreguntes() {
     // Devolvemos los resultados en formato JSON
     return json_encode($preguntes);
 }
-
-
-
 
 ?>
