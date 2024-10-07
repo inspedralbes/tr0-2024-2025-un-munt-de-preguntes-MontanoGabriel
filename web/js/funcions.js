@@ -1,8 +1,8 @@
 let questions;
-let currentQuestionIndex = 0; // Índice para la pregunta actual
-let correctAnswersCount = 0;  // Contador para las respuestas correctas
-let inicio; // Variable global que guarda el momento en que el cronómetro empieza
-let timeout; // Guardará el ID del timeout
+let currentQuestionIndex = 0; 
+let correctAnswersCount = 0; 
+let inicio; 
+let timeout; 
 
 // Fetch para obtener las preguntas desde la base de datos a través de PHP
 fetch("/tr0-2024-2025-un-munt-de-preguntes-MontanoGabriel/back/Back.php")
@@ -64,14 +64,14 @@ function preguntas() {
         respuestas.forEach(respuesta => {
             let boton = document.createElement('button');
             boton.textContent = respuesta;
-            boton.classList.add('answer');  // Asignar la clase "answer" a cada botón
+            boton.classList.add('answer'); 
             boton.addEventListener('click', function() {
                 verificarRespuesta(respuesta === preguntaActual.resposta_correcta);
             });
             respuestasDiv.appendChild(boton);
         });
     } else {
-        mostrarResultadoFinal();  // Si no hay más preguntas, mostrar resultado final
+        mostrarResultadoFinal();  
     }
 }
 
@@ -91,7 +91,7 @@ function mostrarResultadoFinal() {
         <div class="final">
             <h1>¡Has completado el cuestionario!</h1>
 
-            <p>Has acertado ${correctAnswersCount} de ${questions.length} preguntas.</p>
+            <p class="pregunta">Has acertado ${correctAnswersCount} de ${questions.length} preguntas.</p>
             <img src="https://media.tenor.com/7PpiVBTIBXQAAAAM/spiderman-tobey-maguire.gif">
         </div>
 
